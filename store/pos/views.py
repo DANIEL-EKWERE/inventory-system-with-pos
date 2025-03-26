@@ -43,24 +43,31 @@ def pos(request):
 @login_required
 @permission_required('pos.view_creditors', raise_exception=True)
 def creditors(request):
-    
-    
-    # products = Products.objects.filter(status=1).order_by('name')
-    # product_json = []
-    # for product in products:
-    #     product_json.append({'id': product.id, 'name': product.name, 'price': float(product.price)})
-    # context = {
-    #     'page_title': "Point of Sale",
-    #     'products': products,
-    #     'product_json': json.dumps(product_json)
-    # }
+    creditors = Creditor.objects.order_by('-date_added').all()
+
     context = {
-        'page_title': "Creditors Page",
-    }
+        'page_title': 'Creditors Transactions',
+        'creditor_data': creditors
+        }
+    
     return render(request, 'pos/creditor.html', context)
+
+import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 def checkout_modal(request):
+
+
+            # Extremely verbose logging
+    logger.error("=== FULL REQUEST DEBUG START ===")
+    logger.error(f"Method:checkout modal {request.method}")
+    logger.error(f"POST Data:checkout modal {request.POST}")
+    logger.error(f"FILES Data:checkout modal {request.FILES}")
+   
+
+
+
     grand_total = 0
     if 'grand_total' in request.GET:
         grand_total = request.GET['grand_total']
@@ -68,6 +75,7 @@ def checkout_modal(request):
         'grand_total': grand_total,
     }
     return render(request, 'pos/checkout.html', context)
+
 
 @login_required
 @permission_required('pos.add_sales', raise_exception=True)
@@ -107,6 +115,7 @@ def save_pos(request):
             for prod_id in data.getlist('product[]'):
                 product = get_object_or_404(Products, id=prod_id)
                 qty = int(data.getlist('qty[]')[i])
+                
                 price = float(data.getlist('price[]')[i])
                 total = qty * price
 
@@ -129,14 +138,68 @@ def save_pos(request):
                 sales_item.save()
                 i += 1
 
+
+                # Payment type and amount checks
+            tendered_amount = float(request.POST.get('tendered_amount', 0))
+            grand_total = float(request.POST.get('grand_total', 0))
+            payment_type = request.POST.get('payment_type', 'full')
+
+            customer_name = request.POST.get('customer_name', '').strip()
+            customer_phone = request.POST.get('customer_phone', '').strip()
+            customer_address = request.POST.get('customer_address', '').strip()
+            customer_email = request.POST.get('customer_email', 'N/A').strip()
+            
+            # Detailed logging
+            print("Partial Payment Details:")
+            print(f"Customer Name: {customer_name}")
+            print(f"Customer Phone: {customer_phone}")
+            print(f"Customer Address: {customer_address}")
+            print(f"Customer Email: {customer_email}")
+            
+            # Partial payment specific logic
+            if payment_type == 'partial' and tendered_amount < grand_total:
+                # Extract customer details
+                customer_name = request.POST.get('customer_name', '').strip()
+                customer_phone = request.POST.get('customer_phone', '').strip()
+                customer_address = request.POST.get('customer_address', '').strip()
+                customer_email = request.POST.get('customer_email', 'N/A').strip()
+                
+                # Detailed logging
+                print("Partial Payment Details:")
+                print(f"Customer Name: {customer_name}")
+                print(f"Customer Phone: {customer_phone}")
+                print(f"Customer Address: {customer_address}")
+                print(f"Customer Email: {customer_email}")
+                
+                # Validate required fields
+                if not (customer_name and customer_phone and customer_address):
+                    resp['msg'] = "Customer name, phone, and address are required for partial payments."
+                    return JsonResponse(resp)
+                
+                # Create Creditor record
+                creditor = Creditor.objects.create(
+                    sale_id=code,
+                    customer=customer_name,
+                    phone=customer_phone,
+                    email=customer_email,
+                    address=customer_address,
+                    amount=grand_total,
+                    balance=grand_total - tendered_amount,
+                    paid_amount=tendered_amount,
+                )
+                
+                print(f"Creditor record created: {creditor.id}")
+                messages.success(request, "Partial payment recorded. Creditor record created.")
+            
             resp['status'] = 'success'
             resp['sale'] = sale_id
             messages.success(request, "The sale has been recorded.")
+    
     except ValueError as e:
         resp['msg'] = str(e)
     except Exception as e:
         resp['msg'] = "An error occurred: " + str(e)
-
+    
     return JsonResponse(resp)
 
 @login_required
@@ -167,6 +230,24 @@ def salesList(request):
         'sale_data': sale_data,
     }
     return render(request, 'pos/sales.html', context)
+
+@login_required
+# @permission_required('pos.view_creditor', raise_exception=True)
+def credior(request):
+    creditors = Creditor.objects.order_by('-date_added').all()
+    # creditor_data = []
+    # for creditor in creditors:
+    #     data = {}
+    #     for field in creditor._meta.get_fields(include_parents=False):
+    #         if field.related_model is None:
+    #             data[field.name] = getattr(creditor, field.name)
+    #     creditor_data.append(data)
+    context = {
+        'page_title': 'Creditors Transactions',
+        'creditor_data': creditors,
+    }
+    return render(request, 'pos/creditor.html', context)
+
 
 @login_required
 @permission_required('pos.add_sales', raise_exception=True)
@@ -220,9 +301,9 @@ def create_sale(request):
         sale.grand_total = sale.sub_total + sale.tax_amount
         sale.save()
 
-        return JsonResponse({"success": "Venta creada exitosamente."})
+        return JsonResponse({"success": "Sales Created Successfully."})
 
-    return JsonResponse({"error": "Método no permitido."}, status=405)
+    return JsonResponse({"error": "No Permission."}, status=405)
 
 @login_required
 def receipt(request):

@@ -8,6 +8,22 @@ from django.dispatch import receiver
 
 from inventory.models import *
 
+
+class Creditor(models.Model):
+    sale_id = models.CharField(max_length=100,default="")
+    customer = models.CharField(max_length=100)
+    phone = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100, blank=True, null=True)
+    address = models.CharField(max_length=100, blank=True, null=True)
+    amount = models.FloatField(default=0)
+    date_added = models.DateTimeField(default=timezone.now)
+    date_updated = models.DateTimeField(auto_now=True)
+    paid_amount = models.FloatField(default=0)
+    balance = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.customer
+
 class Sales(models.Model):
     code = models.CharField(max_length=100)
     sub_total = models.FloatField(default=0)

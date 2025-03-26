@@ -223,6 +223,26 @@
                 _this[0].reportValidity();
                 return false;
             }
+
+            // Add payment type and customer details to the form
+            var paymentType = $('#payment_type').val();
+            _this.append('<input type="hidden" name="payment_type" value="' + paymentType + '">');
+
+            if (paymentType === 'partial') {
+            // Add customer details if partial payment
+            var customerName = $('#customer_name').val();
+            var customerPhone = $('#customer_phone').val();
+            var customerAddress = $('#customer_address').val();
+            var customerEmail = $('#customer_email').val();
+
+            _this.append('<input type="hidden" name="customer_name" value="' + customerName + '">');
+            _this.append('<input type="hidden" name="customer_phone" value="' + customerPhone + '">');
+            _this.append('<input type="hidden" name="customer_address" value="' + customerAddress + '">');
+            _this.append('<input type="hidden" name="customer_email" value="' + customerEmail + '">');
+        }
+
+
+
             start_loader();
             $.ajax({
                 headers: {
