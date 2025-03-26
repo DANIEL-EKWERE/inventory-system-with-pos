@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">{{ page_title }}</h4>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table id="miTabla" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center py-1">Customers</th>
+                        <th class="text-center py-1">Date and Time</th>
+                        <th class="text-center py-1">Products</th>
+                        <th class="text-center py-1">Total</th>
+                        <th class="text-center py-1">Total Quantity Items</th>
+                        <th class="text-center py-1">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sale_data %}
+                    <tr>
+                        <td class="px-2 py-1 text-center">Default Customer</td>
+                        <td class="px-2 py-1 text-center">01-01-2023 00:00</td>
+                        <td class="px-2 py-1 text-right">
+                            Default Product - 0<br>
+                        </td>
+                        <td class="px-2 py-1 text-center">₦ 0.00</td>
+                        <td class="px-2 py-1 text-center">0</td>
+                        <td class="px-2 py-1 text-center">
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded view-data" type="button" data-id="0" title="View Receipt">
+                                <i class="material-icons mdc-button__icon">receipt</i>
+                            </button>
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="0" data-code="Default Code" title="Delete Sale">
+                                <i class="material-icons mdc-button__icon">delete_outline</i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %}
+
+{% block ScriptBlock %}
+<script>
+    $(document).ready(function() {
+        $('#miTabla').DataTable({
+            "paging": true,
+            "ordering": true,
+            "searching": true,
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "order": [[1, "desc"]],
+            "buttons": ['copy', 'csv', 'excel', 'pdf', 'print', 'colvis']
+        }).buttons().container().appendTo('#miTabla_wrapper .col-md-6:eq(0)');
+    });
+
+    $(function() {
+        $('.view-data').click(function() {
+            uni_modal("Transaction Receipt", "/default-url?id=0");
+        });
+        $('.delete-data').click(function() {
+            _conf("Are you sure you want to delete <b>Default Code</b> from the list?", "delete_sale", [0]);
+        });
+    });
+
+    function delete_sale(id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": 'default-csrf-token'
+            },
+            url: "/default-delete-url",
+            method: "POST",
+            data: { id: id },
+            dataType: "json",
+            error: function(err) {
+                console.log(err);
+                alert_toast("An error occurred.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp === 'object' && resp.status === 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occurred.", 'error');
+                    end_loader();
+                }
+            }
+        });
+    }
+</script>
+{% endblock ScriptBlock %}
