@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import *
@@ -51,6 +51,35 @@ def creditors(request):
         }
     
     return render(request, 'pos/creditor.html', context)
+
+@login_required
+def payDue(request):
+    pk = request.GET.get('id')
+    print(f'pk ========================= {pk}')
+    credit = Creditor.objects.get(sale_id=pk)
+    sales = Sales.objects.get(code=credit.sale_id)
+    print(request.method)
+    if request.method == "POST":
+        amt = float(request.POST.get('payment_amount'))
+        bal = float(request.POST.get('balance'))
+        if amt > bal or amt <= 0:
+            raise ValueError(request, 'Amount received is more than or less the amount to pay.')
+
+        credit.paid_amount += float(request.POST.get('payment_amount'))
+        credit.balance -= float(request.POST.get('payment_amount'))
+        credit.save()
+        sales.amount_change += float(request.POST.get('payment_amount'))
+        sales.tendered_amount += float(request.POST.get('payment_amount'))
+        sales.save()
+        if credit.balance == 0:
+            credit.delete()
+        messages.success(request, 'Creditor\'s Payment recorded successfully.')
+        #return redirect('pos:creditor-page')
+    context = { 'credit': credit
+
+    }
+    return render(request, 'pos/paydue.html', context)
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -342,9 +371,9 @@ def delete_sale(request):
         resp['status'] = 'success'
         messages.success(request, 'The sale record was deleted, and the product quantities were restored.')
     except Sales.DoesNotExist:
-        resp['msg'] = "La venta no existe"
+        resp['msg'] = "Sale record not found."
     except Exception as e:
-        resp['msg'] = f"Ocurrió un error: {str(e)}"
+        resp['msg'] = f"AN Erro Occurred: {str(e)}"
     return HttpResponse(json.dumps(resp), content_type='application/json')
 
 def error_403(request, exception=None):

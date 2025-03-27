@@ -63,6 +63,6 @@ class PurchaseProduct(models.Model):
             super().delete(*args, **kwargs)
             
     def __str__(self):
-        return f"{self.product} de {self.supplier} - {self.qty} @ {self.cost} cada uno"
+        return f"{self.product} from {self.supplier} - {self.qty} @ {self.cost} each"
 
     

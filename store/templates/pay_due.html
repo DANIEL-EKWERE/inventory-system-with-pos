@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Due</title>
+    <!-- Include Bootstrap CSS for modal styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <h1>Creditor's Payment</h1>
+
+    <!-- Modal Trigger (Optional) -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
+        Open Payment Form
+    </button>
+
+    <!-- Modal Structure -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Pay Due</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'pos:pay-due' %}?id={{ credit.sale_id }}">
+                        {% csrf_token %}
+
+                        <div class="form-group mb-3">
+                            <label for="payment_change" class="control-label">Balance</label>
+                            <input type="text" id="balance" name="balance" class="form-control form-control-lg rounded-0 text-end" readOnly value="{{ credit.balance }}" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="payment_change" class="control-label">Payment Amount</label>
+                            <input type="text" id="payment_amount" name="payment_amount" step="10.0" class="form-control form-control-lg rounded-0 text-end" placeholder="Enter Payment Amount" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS for modal functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

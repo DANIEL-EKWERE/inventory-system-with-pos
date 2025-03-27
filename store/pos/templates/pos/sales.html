@@ -67,7 +67,7 @@
 <script>
     $(function() {
         $('.view-data').click(function() {
-            uni_modal("Transaccion Receipt", "{% url 'pos:receipt-modal' %}?id=" + $(this).attr('data-id'))
+            uni_modal("Transaction Receipt", "{% url 'pos:receipt-modal' %}?id=" + $(this).attr('data-id'))
         })
         $('.delete-data').click(function() {
             _conf("Are you sure you want to delete <b>" + $(this).attr('data-code') + "</b> from the list?", "delete_sale", [$(this).attr('data-id')])

@@ -38,12 +38,12 @@ class Sales(models.Model):
     cliente = models.CharField(max_length=100, blank=True)  
 
     def save(self, *args, **kwargs):
-        if not self.pk or self.cliente == "Cliente 1": 
+        if not self.pk or self.cliente == "Customer 1": 
             
             ventas_hoy = Sales.objects.filter(date_added__date=timezone.now().date()).count()
             
-            self.cliente = f"Cliente {ventas_hoy + 1}"
-            print("Cliente:", self.cliente) 
+            self.cliente = f"Customer {ventas_hoy + 1}"
+            print("Customer:", self.cliente) 
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -59,7 +59,7 @@ class salesItems(models.Model):
     total = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
-        print(f"Guardando SalesItem: Producto: {self.product.name}, Cantidad Vendida: {self.qty}")
+        print(f"Saving SalesItem: Product: {self.product.name}, Quantity Sold: {self.qty}")
         super().save(*args, **kwargs)
         self.update_product_quantity()
         
@@ -69,6 +69,6 @@ class salesItems(models.Model):
     
     
     def delete(self, *args, **kwargs):
-        print(f"Eliminando SalesItem: Producto: {self.product.name}, Cantidad Vendida: {self.qty}")
+        print(f"Deleting SalesItem: Product: {self.product.name}, Quantity Sold: {self.qty}")
         self.product.increase_quantity(self.qty)
         super().delete(*args, **kwargs)

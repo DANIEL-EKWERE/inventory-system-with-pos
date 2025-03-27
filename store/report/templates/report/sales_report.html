@@ -314,7 +314,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.view-data').forEach(button => {
                 button.addEventListener('click', function () {
-                    uni_modal("Recibo de la transaccion", `{% url 'pos:receipt-modal' %}?id=${this.dataset.id}`);
+                    uni_modal("Transaction Receipt", `{% url 'pos:receipt-modal' %}?id=${this.dataset.id}`);
                 });
             });
 

@@ -311,7 +311,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.view-data').forEach(button => {
                 button.addEventListener('click', function () {
-                    uni_modal("Recibo de la transaccion", `{% url 'pos:receipt-modal' %}?id=${this.dataset.id}`);
+                    uni_modal("Transaction Receipt", `{% url 'pos:receipt-modal' %}?id=${this.dataset.id}`);
                 });
             });
 
@@ -319,7 +319,7 @@
                 button.addEventListener('click', function () {
                     const saleId = this.dataset.id;
                     const saleCode = this.dataset.code;
-                    if (confirm(`Esta seguro de querer eliminar ${saleCode} del registro?`)) {
+                    if (confirm(`Are you sure you want to delete ${saleCode} del registro?`)) {
                         delete_sale(saleId);
                     }
                 });

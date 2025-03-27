@@ -14,6 +14,6 @@ urlpatterns = [
     path('receipt', views.receipt, name="receipt-modal"),
     path('delete_sale', views.delete_sale, name="delete-sale"),
 
-
+    path('pay-due/', views.payDue, name="pay-due"),
     path('creditor', views.creditors, name="creditor-page"),
 ]   

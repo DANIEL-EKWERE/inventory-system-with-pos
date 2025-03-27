@@ -81,7 +81,7 @@ class PurchaseCreate(LoginRequiredMixin,PermissionRequiredMixin, generic.CreateV
     def form_valid(self, form):
         response = super().form_valid(form)
         purchase_name = form.instance.product.name
-        messages.success(self.request, f" Compra de '{purchase_name}' registrada exitosamente.")
+        messages.success(self.request, f" Purchase Of '{purchase_name}' Created Successfully.")
         return response
 
     def form_invalid(self, form):
