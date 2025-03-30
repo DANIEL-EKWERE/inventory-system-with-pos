@@ -120,6 +120,8 @@ class PurchaseReportView(LoginRequiredMixin, PermissionRequiredMixin,ListView):
         return context
 
     def format_total(self, total):
+        if total is None:
+            return "0.00"
         return f"{total:,.2f}"
 
 
