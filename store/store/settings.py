@@ -101,17 +101,18 @@ EMAIL_HOST_PASSWORD = 'your-email-password'
 import dj_database_url
 
 
-#DATABASES = {
-#    'default': dj_database_url.parse('postgres://databank_api_db_h2sh_user:KgmsFTxrDLy2c2vH7d7BZlCAuJOcYnqg@dpg-cm7hgpud3nmc73atbtr0-a.oregon-postgres.render.com/databank_api_db_h2sh')
-#}
+DATABASES = {
+    'default': dj_database_url.parse('postgresql://goldendrugs_db_user:NMFh7C2WP9Q8ShmOJ0I0mNtH4qJUurxB@dpg-cvkkppl6ubrc73fqba90-a.oregon-postgres.render.com/goldendrugs_db')
+}
 
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+"""
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
