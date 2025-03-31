@@ -92,7 +92,7 @@ class CategoryDelete(LoginRequiredMixin, SuccessMessageMixin,PermissionRequiredM
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         category_name = self.object.name
-        success_message = f"Categoria '{category_name}' eliminado exitosamente."
+        success_message = f"Categoria '{category_name}' deleted Successfully."
         messages.success(self.request, success_message)
         return self.delete(request, *args, **kwargs)
 
